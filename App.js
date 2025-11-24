@@ -15,21 +15,104 @@ import {
 
 const PHONE_NUMBER = '525529275019';
 
-// Clase Turca kelimeleri
+// Uygulama logosu:
+// ŞİMDİLİK örnek bir URL kullanıyoruz.
+// Kendi premium ikonunu bir yere (Cloudinary, Imgur, siten vs.) yükledikten sonra
+// sadece burayı kendi URL'inle değiştirmen yeterli.
+const LOGO_URL =
+  'https://via.placeholder.com/160x160.png?text=El+Turco+Chilango';
+
+// Clase Turca kelimeleri – selamlar, günlük konuşma, restoranda, caddede, süpermarkette
 const TURKISH_WORDS = [
+  // SELAMLAR / TEMEL İFADELER
   { tr: 'Merhaba', es: 'Hola', note: 'Saludo general' },
-  { tr: 'Teşekkürler', es: 'Gracias', note: 'Agradecimiento' },
-  { tr: 'Afiyet olsun', es: 'Buen provecho', note: 'Antes o después de comer' },
   { tr: 'Günaydın', es: 'Buenos días', note: 'En la mañana' },
   { tr: 'İyi akşamlar', es: 'Buenas noches', note: 'Saludo en la noche' },
+  { tr: 'Hoş geldiniz', es: 'Bienvenido(a)', note: 'Al recibir a alguien o en restaurante' },
+  { tr: 'Güle güle', es: 'Adiós', note: 'Cuando alguien se va' },
+  { tr: 'Nasılsın?', es: '¿Cómo estás?', note: 'Entre amigos, informal' },
+  { tr: 'Nasılsınız?', es: '¿Cómo está?', note: 'Formal, con respeto' },
+  { tr: 'İyiyim, teşekkürler', es: 'Estoy bien, gracias', note: 'Respuesta típica' },
+
+  // TEŞEKKÜR / RİCA
+  { tr: 'Teşekkürler', es: 'Gracias', note: 'Agradecimiento general' },
+  { tr: 'Çok teşekkürler', es: 'Muchas gracias', note: 'Agradecimiento fuerte' },
+  { tr: 'Lütfen', es: 'Por favor', note: 'Para pedir algo con cortesía' },
+  { tr: 'Rica ederim', es: 'De nada / Con gusto', note: 'Respuesta a “gracias”' },
+  { tr: 'Özür dilerim', es: 'Perdón / Disculpa', note: 'Cuando cometes un error' },
+
+  // GÜNDELİK KONUŞMA
   { tr: 'Evet', es: 'Sí', note: 'Respuesta afirmativa' },
   { tr: 'Hayır', es: 'No', note: 'Respuesta negativa' },
-  { tr: 'Baklava', es: 'Baklava', note: 'Postre típico turco' },
-  { tr: 'Lokum', es: 'Delicia turca', note: 'Dulce de gelatina turco' },
+  { tr: 'Anlamadım', es: 'No entendí', note: 'Cuando no entiendes' },
+  { tr: 'Yavaş konuşur musun?', es: '¿Puedes hablar despacio?', note: 'Turco muy rápido' },
+  { tr: 'Türkçe bilmiyorum', es: 'No hablo turco', note: 'Para aclarar' },
+  { tr: 'Biraz Türkçe biliyorum', es: 'Hablo un poco de turco', note: 'Nivel básico' },
+
+  // CADDEDE / YOL SORARKEN
+  { tr: 'Burası neresi?', es: '¿Dónde estoy?', note: 'Cuando estás perdido' },
+  { tr: '... nerededir?', es: '¿Dónde está...?', note: 'Para preguntar por un lugar' },
+  { tr: 'Otobüs durağı nerede?', es: '¿Dónde está la parada de camión?', note: 'Transporte público' },
+  { tr: 'Metro durağı nerede?', es: '¿Dónde está la estación de metro?', note: 'Transporte público' },
+  { tr: 'Sol', es: 'Izquierda', note: 'Dirección' },
+  { tr: 'Sağ', es: 'Derecha', note: 'Dirección' },
+  { tr: 'Düz', es: 'Derecho / recto', note: 'Seguir derecho' },
+
+  // RESTORANDA
+  { tr: 'Menü alabilir miyim?', es: '¿Me puede traer el menú, por favor?', note: 'En restaurante' },
+  { tr: 'Bir masa istiyorum', es: 'Quiero una mesa', note: 'Al llegar al restaurante' },
+  { tr: 'İki kişilik masa', es: 'Mesa para dos personas', note: 'Reservar lugar' },
+  { tr: 'Ne tavsiye edersiniz?', es: '¿Qué me recomienda?', note: 'Pedir recomendación' },
+  { tr: 'Hesap lütfen', es: 'La cuenta, por favor', note: 'Para pagar' },
+  { tr: 'Paket yapar mısınız?', es: '¿Me lo puede poner para llevar?', note: 'Para llevar' },
+  { tr: 'Acısız olsun lütfen', es: 'Sin picante, por favor', note: 'Si no quieres picante' },
+  { tr: 'Bir çay lütfen', es: 'Un té turco, por favor', note: 'Pedir çay' },
+
+  // SÜPERMARKET / ALIŞVERİŞ
+  { tr: 'Bu ne kadar?', es: '¿Cuánto cuesta esto?', note: 'Precio de un producto' },
+  { tr: 'İndirim var mı?', es: '¿Hay descuento?', note: 'Preguntar por promoción' },
+  { tr: 'Bir kilo ... istiyorum', es: 'Quiero un kilo de...', note: 'Frutas, verduras, etc.' },
+  { tr: 'Poşet alabilir miyim?', es: '¿Me puede dar una bolsa?', note: 'En caja / súper' },
+  { tr: 'Kredi kartı geçiyor mu?', es: '¿Aceptan tarjeta?', note: 'Forma de pago' },
+
+  // YOL TARİFİ / ULAŞIM
+  { tr: 'Taksi çağırabilir misiniz?', es: '¿Puede llamar un taxi, por favor?', note: 'En hotel o restaurante' },
+  { tr: 'Havalimanına gitmek istiyorum', es: 'Quiero ir al aeropuerto', note: 'Taxi / transporte' },
+  { tr: 'Ne kadar sürer?', es: '¿Cuánto tiempo tarda?', note: 'Duración del trayecto' },
+
+  // ACİL DURUMLAR
+  { tr: 'Yardım eder misiniz?', es: '¿Me puede ayudar?', note: 'Pedir ayuda' },
+  { tr: 'Doktor lazım', es: 'Necesito un doctor', note: 'Emergencia médica' },
+  { tr: 'Polisi arayın lütfen', es: 'Llame a la policía, por favor', note: 'Emergencia seria' },
 ];
 
 // Haberler – TRT World Español Turkey RSS
 const NEWS_FEED_URL = 'https://www.trtworld.com/rss/es/turkey';
+
+// RSS boş gelir veya hata olursa gösterilecek yedek haberler
+const DEFAULT_NEWS = [
+  {
+    id: 'local-1',
+    title: 'Turquía y México refuerzan lazos culturales',
+    description:
+      'Resumen en español sobre la relación creciente entre México y Türkiye, con énfasis en intercambio cultural y gastronómico.',
+    link: '',
+  },
+  {
+    id: 'local-2',
+    title: 'Estambul, punto de conexión entre Europa y Asia',
+    description:
+      'Breve nota sobre la importancia de Estambul como centro histórico, económico y turístico de Türkiye.',
+    link: '',
+  },
+  {
+    id: 'local-3',
+    title: 'Turquía como destino para amantes de la comida',
+    description:
+      'Panorama general de la cocina turca: baklava, lokum, kebab y desayunos tradicionales, explicado en español.',
+    link: '',
+  },
+];
 
 const CATEGORIES = [
   { id: 'all', name: 'Todo' },
@@ -38,7 +121,8 @@ const CATEGORIES = [
   { id: 'cajas', name: 'Cajas de regalo' },
 ];
 
-// Ürünler – görselli kartlar için imageUrl eklendi
+// Ürünler – imageUrl alanlarını sonra kendi gerçek foto URL'lerinle değiştirebilirsin.
+// Şu an hepsi çalışır ve kartlarda görsel çıkar.
 const PRODUCTS = [
   {
     id: 'p1',
@@ -46,7 +130,8 @@ const PRODUCTS = [
     description: 'Baklava clásica con pistache turco, jarabe ligero y masa crujiente.',
     price: 380,
     category: 'baklava',
-    imageUrl: 'https://via.placeholder.com/800x500.png?text=Baklava+Pistache+500g',
+    imageUrl:
+      'https://images.pexels.com/photos/4109990/pexels-photo-4109990.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
     id: 'p2',
@@ -54,7 +139,8 @@ const PRODUCTS = [
     description: 'Charola mixta de nuez, ideal para compartir.',
     price: 700,
     category: 'baklava',
-    imageUrl: 'https://via.placeholder.com/800x500.png?text=Baklava+Nuez+1kg',
+    imageUrl:
+      'https://images.pexels.com/photos/6062045/pexels-photo-6062045.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
     id: 'p3',
@@ -62,7 +148,8 @@ const PRODUCTS = [
     description: 'Delicia turca sabor rosa, espolvoreada con azúcar glass.',
     price: 250,
     category: 'lokum',
-    imageUrl: 'https://via.placeholder.com/800x500.png?text=Lokum+Rosa+250g',
+    imageUrl:
+      'https://images.pexels.com/photos/1438186/pexels-photo-1438186.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
     id: 'p4',
@@ -70,7 +157,8 @@ const PRODUCTS = [
     description: 'Surtido de sabores clásicos: rosa, limón y naranja.',
     price: 420,
     category: 'lokum',
-    imageUrl: 'https://via.placeholder.com/800x500.png?text=Lokum+Mixto+500g',
+    imageUrl:
+      'https://images.pexels.com/photos/1438188/pexels-photo-1438188.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
     id: 'p5',
@@ -78,7 +166,8 @@ const PRODUCTS = [
     description: 'Caja premium con selección de baklava y lokum.',
     price: 890,
     category: 'cajas',
-    imageUrl: 'https://via.placeholder.com/800x500.png?text=Caja+Regalo+Baklava+%2B+Lokum',
+    imageUrl:
+      'https://images.pexels.com/photos/4109993/pexels-photo-4109993.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
 ];
 
@@ -126,9 +215,17 @@ export default function App() {
       const res = await fetch(NEWS_FEED_URL);
       const text = await res.text();
       const items = parseRssItems(text);
-      setNews(items);
+
+      if (items && items.length > 0) {
+        setNews(items);
+      } else {
+        setNews(DEFAULT_NEWS);
+      }
     } catch (e) {
-      setNewsError('No se pudieron cargar las noticias.');
+      setNews(DEFAULT_NEWS);
+      setNewsError(
+        'No se pudieron cargar las noticias en vivo. Mostrando un resumen estático.'
+      );
     } finally {
       setNewsLoading(false);
     }
@@ -209,7 +306,7 @@ Merhaba, quiero aprender más palabras turcas en la sección "Clase Turca" de la
       <Text style={styles.newsDescription} numberOfLines={3}>
         {item.description.replace(/<[^>]+>/g, '')}
       </Text>
-      <Text style={styles.newsLink}>Ver nota completa</Text>
+      {item.link ? <Text style={styles.newsLink}>Ver nota completa</Text> : null}
     </Pressable>
   );
 
@@ -218,8 +315,17 @@ Merhaba, quiero aprender más palabras turcas en la sección "Clase Turca" de la
       <StatusBar barStyle="light-content" />
 
       <View style={styles.header}>
-        <Text style={styles.brand}>El Turco Chilango</Text>
-        <Text style={styles.slogan}>Sabores de Turquía en México</Text>
+        <View style={styles.headerTopRow}>
+          <Image
+            source={{ uri: LOGO_URL }}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+          <View style={styles.headerTextBlock}>
+            <Text style={styles.brand}>El Turco Chilango</Text>
+            <Text style={styles.slogan}>Sabores de Turquía en México</Text>
+          </View>
+        </View>
       </View>
 
       <View style={styles.tabBar}>
@@ -241,7 +347,6 @@ Merhaba, quiero aprender más palabras turcas en la sección "Clase Turca" de la
         ))}
       </View>
 
-      {/* MENÚ */}
       {activeTab === 'menu' && (
         <View style={styles.container}>
           <ScrollView
@@ -274,7 +379,6 @@ Merhaba, quiero aprender más palabras turcas en la sección "Clase Turca" de la
         </View>
       )}
 
-      {/* NOSOTROS */}
       {activeTab === 'about' && (
         <ScrollView style={styles.aboutContainer}>
           <Text style={styles.aboutTitle}>Quiénes somos</Text>
@@ -291,7 +395,6 @@ Merhaba, quiero aprender más palabras turcas en la sección "Clase Turca" de la
         </ScrollView>
       )}
 
-      {/* CLASE TURCA */}
       {activeTab === 'clase' && (
         <View style={styles.claseContainer}>
           <View style={styles.wordHeaderRow}>
@@ -315,7 +418,6 @@ Merhaba, quiero aprender más palabras turcas en la sección "Clase Turca" de la
         </View>
       )}
 
-      {/* HABERLER */}
       {activeTab === 'news' && (
         <View style={styles.newsContainer}>
           {newsLoading && (
@@ -334,7 +436,7 @@ Merhaba, quiero aprender más palabras turcas en la sección "Clase Turca" de la
             </View>
           )}
 
-          {!newsLoading && !newsError && (
+          {!newsLoading && (
             <FlatList
               data={news}
               keyExtractor={(item) => item.id}
@@ -365,6 +467,20 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 16,
     paddingHorizontal: 20,
+  },
+  headerTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logo: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    marginRight: 12,
+    backgroundColor: '#FFFFFF20',
+  },
+  headerTextBlock: {
+    flexDirection: 'column',
   },
   brand: { color: 'white', fontSize: 22, fontWeight: '700' },
   slogan: { color: '#F8F3DC', fontSize: 13, marginTop: 4 },

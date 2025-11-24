@@ -15,12 +15,8 @@ import {
 
 const PHONE_NUMBER = '525529275019';
 
-// Uygulama logosu:
-// ŞİMDİLİK örnek bir URL kullanıyoruz.
-// Kendi premium ikonunu bir yere (Cloudinary, Imgur, siten vs.) yükledikten sonra
-// sadece burayı kendi URL'inle değiştirmen yeterli.
-const LOGO_URL =
-  'https://via.placeholder.com/160x160.png?text=El+Turco+Chilango';
+// Logo: assets/icon.png (uygulama ikonu ile aynı görsel)
+const LOGO_IMAGE = require('./assets/icon.png');
 
 // Clase Turca kelimeleri – selamlar, günlük konuşma, restoranda, caddede, süpermarkette
 const TURKISH_WORDS = [
@@ -121,8 +117,7 @@ const CATEGORIES = [
   { id: 'cajas', name: 'Cajas de regalo' },
 ];
 
-// Ürünler – imageUrl alanlarını sonra kendi gerçek foto URL'lerinle değiştirebilirsin.
-// Şu an hepsi çalışır ve kartlarda görsel çıkar.
+// Ürünler – şu an Pexels görselleri, sonra kendi foto URL'lerinle değiştirebilirsin
 const PRODUCTS = [
   {
     id: 'p1',
@@ -317,7 +312,7 @@ Merhaba, quiero aprender más palabras turcas en la sección "Clase Turca" de la
       <View style={styles.header}>
         <View style={styles.headerTopRow}>
           <Image
-            source={{ uri: LOGO_URL }}
+            source={LOGO_IMAGE}
             style={styles.logo}
             resizeMode="contain"
           />

@@ -10,9 +10,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "updates": {
-      "fallbackToLatestAsset": true
-    },
+    "updates": {}, // Hata veren "fallbackToLatestAsset" satırı silindi.
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -24,20 +22,19 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.hadi.elturcochilango"
+      "package": "com.hadi.elturcochilango" // Gerekli paket adı eklendi
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "sdkVersion": "54.0.0",
+    "sdkVersion": "50.0.0", // SDK sürümü eklendi (Gerekli)
     "platforms": [
       "ios",
       "android"
     ],
-    // EKSİK OLAN EAS KAYIT ID'Sİ EKLENDİ
     "extra": {
       "eas": {
-        "projectId": "a51ffe65-1c2f-44d5-aa50-84c618092185"
+        "projectId": "a51ffe65-1c2f-44d5-aa50-84c618092185" // EAS Proje ID'si eklendi
       }
     }
   }

@@ -5,15 +5,17 @@
     "version": "1.0.0",
     "orientation": "portrait",
 
-    "icon": "./assets/app-icon.png",
+    "icon": "./assets/icon.png",
 
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "cover",
-      "backgroundColor": "#ffffff"
+      "resizeMode": "contain",
+      "backgroundColor": "#012B1E"
     },
 
-    "updates": {},
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
 
     "assetBundlePatterns": [
       "**/*"
@@ -27,19 +29,14 @@
     "android": {
       "package": "com.hadi.elturcochilango",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#012B1E"
       }
     },
 
     "web": {
-      "favicon": "./assets/app-icon.png"
+      "favicon": "./assets/icon.png"
     },
-
-    "platforms": [
-      "ios",
-      "android"
-    ],
 
     "extra": {
       "eas": {

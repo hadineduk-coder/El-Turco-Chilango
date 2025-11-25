@@ -11,6 +11,7 @@ import {
   Linking,
   ActivityIndicator,
   Image,
+  TextInput,
 } from 'react-native';
 
 const PHONE_NUMBER = '525529275019';
@@ -117,50 +118,69 @@ const CATEGORIES = [
   { id: 'cajas', name: 'Cajas de regalo' },
 ];
 
-// Ürünler – şu an Pexels görselleri, sonra kendi foto URL'lerinle değiştirebilirsin
+// ÜRÜNLER – yerel asset görselleriyle
 const PRODUCTS = [
+  // Baklava Pistache 1 kg – BESTSELLER
   {
-    id: 'p1',
-    name: 'Baklava Pistache 500 g',
-    description: 'Baklava clásica con pistache turco, jarabe ligero y masa crujiente.',
-    price: 380,
-    category: 'baklava',
-    imageUrl:
-      'https://images.pexels.com/photos/4109990/pexels-photo-4109990.jpeg?auto=compress&cs=tinysrgb&w=800',
-  },
-  {
-    id: 'p2',
-    name: 'Baklava Nuez 1 kg',
-    description: 'Charola mixta de nuez, ideal para compartir.',
+    id: 'baklava-pistache-1kg',
+    name: 'Baklava Pistache 1 kg',
+    description: 'Baklava de pistache turco, ideal para compartir en familia o en la oficina.',
     price: 700,
     category: 'baklava',
-    imageUrl:
-      'https://images.pexels.com/photos/6062045/pexels-photo-6062045.jpeg?auto=compress&cs=tinysrgb&w=800',
+    bestSeller: true,
+    image: require('./assets/baklava_pistache_main.webp'),
+    extraImages: [require('./assets/baklava_pistache_close.webp')],
   },
+  // Baklava Pistache 500 g – BESTSELLER
   {
-    id: 'p3',
+    id: 'baklava-pistache-500g',
+    name: 'Baklava Pistache 500 g',
+    description: 'Media charola de baklava con pistache, perfecta para regalo o antojo.',
+    price: 380,
+    category: 'baklava',
+    bestSeller: true,
+    image: require('./assets/baklava_pistache_main.webp'),
+    extraImages: [require('./assets/baklava_pistache_close.webp')],
+  },
+  // Baklava Nuez 1 kg
+  {
+    id: 'baklava-nuez-1kg',
+    name: 'Baklava Nuez 1 kg',
+    description: 'Baklava clásica de nuez, masa crujiente y jarabe equilibrado.',
+    price: 650,
+    category: 'baklava',
+    bestSeller: false,
+    image: require('./assets/baklava_nuez_main.webp'),
+    extraImages: [require('./assets/baklava_nuez_close.webp')],
+  },
+  // Diğer ürünler – şimdilik örnek lokum ve caja, uzaktan görsel ile
+  {
+    id: 'lokum-rosa-250',
     name: 'Lokum Rosa 250 g',
     description: 'Delicia turca sabor rosa, espolvoreada con azúcar glass.',
     price: 250,
     category: 'lokum',
+    bestSeller: false,
     imageUrl:
       'https://images.pexels.com/photos/1438186/pexels-photo-1438186.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
-    id: 'p4',
+    id: 'lokum-mixto-500',
     name: 'Lokum Mixto 500 g',
     description: 'Surtido de sabores clásicos: rosa, limón y naranja.',
     price: 420,
     category: 'lokum',
+    bestSeller: false,
     imageUrl:
       'https://images.pexels.com/photos/1438188/pexels-photo-1438188.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
-    id: 'p5',
+    id: 'caja-regalo-mix',
     name: 'Caja regalo Baklava + Lokum',
     description: 'Caja premium con selección de baklava y lokum.',
     price: 890,
     category: 'cajas',
+    bestSeller: false,
     imageUrl:
       'https://images.pexels.com/photos/4109993/pexels-photo-4109993.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
@@ -198,10 +218,83 @@ export default function App() {
   const [newsLoading, setNewsLoading] = useState(false);
   const [newsError, setNewsError] = useState('');
 
+  // Basit kullanıcı profili + sadakat durumu
+  const [user, setUser] = useState({
+    name: '',
+    phone: '',
+    points: 0,
+    coupons: 0,
+    hasUsedReferral: false,
+  });
+  const [usedRefInput, setUsedRefInput] = useState('');
+
   const filteredProducts = useMemo(() => {
     if (selectedCategory === 'all') return PRODUCTS;
     return PRODUCTS.filter((p) => p.category === selectedCategory);
   }, [selectedCategory]);
+
+  // Referans kodu – isim + telefon son 4 haneden deterministic oluştur
+  const refCode = useMemo(() => {
+    if (!user.name || !user.phone) return '';
+    const cleanName = user.name
+      .trim()
+      .split(' ')[0]
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, '');
+    const phoneDigits = user.phone.replace(/\D/g, '');
+    const last4 = phoneDigits.slice(-4);
+    if (!cleanName || !last4) return '';
+    return `TURCO-${cleanName}-${last4}`;
+  }, [user.name, user.phone]);
+
+  // Her 10 MXN = 1 puan, 100 puan = 1 kupon (%10 indirim)
+  const addPoints = (amountMx, consumeCoupon = false) => {
+    const earned = Math.floor(amountMx / 10);
+    setUser((prev) => {
+      let points = prev.points + earned;
+      let coupons = prev.coupons;
+
+      if (consumeCoupon && coupons > 0) {
+        coupons -= 1; // 1 kupon kullanıldı
+      }
+
+      if (points >= 100) {
+        const extraCoupons = Math.floor(points / 100);
+        coupons += extraCoupons;
+        points = points % 100;
+      }
+
+      return { ...prev, points, coupons };
+    });
+  };
+
+  // Referans kodu bonusu – yeni kullanıcı için 50 puan (ilk ve tek sefer)
+  const handleUseReferralBonus = () => {
+    if (!usedRefInput || user.hasUsedReferral) {
+      return;
+    }
+    const bonus = 50;
+    setUser((prev) => {
+      if (prev.hasUsedReferral) return prev;
+      let points = prev.points + bonus;
+      let coupons = prev.coupons;
+
+      if (points >= 100) {
+        const extraCoupons = Math.floor(points / 100);
+        coupons += extraCoupons;
+        points = points % 100;
+      }
+
+      return { ...prev, points, coupons, hasUsedReferral: true };
+    });
+  };
+
+  const handleShareRefCode = () => {
+    if (!refCode) return;
+    const message = `Te invito a probar baklava y lokum de El Turco Chilango. Usa mi código ${refCode} en tu primer pedido para ganar puntos.`;
+    const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    Linking.openURL(url);
+  };
 
   const loadNews = async () => {
     try {
@@ -244,6 +337,36 @@ Horario para entrega:
 
     const url = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(message)}`;
     Linking.openURL(url);
+
+    // Kupon kullanmadan normal sipariş – puan kazan
+    addPoints(product.price, false);
+  };
+
+  const handleOrderWithCoupon = (product) => {
+    if (user.coupons <= 0) {
+      // Kupon yoksa normal sipariş
+      return handleOrder(product);
+    }
+
+    const discountedPrice = Math.round(product.price * 0.9);
+
+    const message = `
+Hola, quiero pedir usando mi cupón de 10%:
+
+Producto: ${product.name}
+Precio original: ${product.price} MXN
+Precio con cupón: ${discountedPrice} MXN
+
+Nombre:
+Dirección:
+Horario para entrega:
+    `.trim();
+
+    const url = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(message)}`;
+    Linking.openURL(url);
+
+    // Kupon kullanıldı + indirimli tutar üzerinden puan kazan
+    addPoints(discountedPrice, true);
   };
 
   const handleAskTurkish = () => {
@@ -256,27 +379,58 @@ Merhaba, quiero aprender más palabras turcas en la sección "Clase Turca" de la
     Linking.openURL(url);
   };
 
-  const renderProduct = ({ item }) => (
-    <View style={styles.card}>
-      {item.imageUrl ? (
-        <Image
-          source={{ uri: item.imageUrl }}
-          style={styles.cardImage}
-          resizeMode="cover"
-        />
-      ) : null}
+  const renderProduct = ({ item }) => {
+    const imageSource = item.image
+      ? item.image
+      : item.imageUrl
+      ? { uri: item.imageUrl }
+      : null;
 
-      <View style={styles.cardBody}>
-        <Text style={styles.productName}>{item.name}</Text>
-        <Text style={styles.productDesc}>{item.description}</Text>
-        <Text style={styles.productPrice}>{item.price} MXN</Text>
+    return (
+      <View style={styles.card}>
+        {imageSource && (
+          <Image
+            source={imageSource}
+            style={styles.cardImage}
+            resizeMode="cover"
+          />
+        )}
 
-        <Pressable style={styles.orderButton} onPress={() => handleOrder(item)}>
-          <Text style={styles.orderButtonText}>Pedir por WhatsApp</Text>
-        </Pressable>
+        <View style={styles.cardBody}>
+          {item.bestSeller && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>Bestseller</Text>
+            </View>
+          )}
+
+          <Text style={styles.productName}>{item.name}</Text>
+          <Text style={styles.productDesc}>{item.description}</Text>
+          <Text style={styles.productPrice}>{item.price} MXN</Text>
+
+          {user.coupons > 0 && (
+            <Text style={styles.couponInfoText}>
+              Tienes {user.coupons} cupón(es) de 10% disponibles.
+            </Text>
+          )}
+
+          <Pressable style={styles.orderButton} onPress={() => handleOrder(item)}>
+            <Text style={styles.orderButtonText}>Pedir por WhatsApp</Text>
+          </Pressable>
+
+          {user.coupons > 0 && (
+            <Pressable
+              style={[styles.orderButton, styles.orderButtonSecondary]}
+              onPress={() => handleOrderWithCoupon(item)}
+            >
+              <Text style={styles.orderButtonSecondaryText}>
+                Usar cupón 10% en este pedido
+              </Text>
+            </Pressable>
+          )}
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   const renderTurkishWord = ({ item }) => (
     <View style={styles.wordRow}>
@@ -329,6 +483,7 @@ Merhaba, quiero aprender más palabras turcas en la sección "Clase Turca" de la
           ['about', 'Nosotros'],
           ['clase', 'Clase Turca'],
           ['news', 'Noticias Turquía'],
+          ['profile', 'Perfil'],
         ].map(([key, label]) => (
           <Pressable
             key={key}
@@ -441,6 +596,84 @@ Merhaba, quiero aprender más palabras turcas en la sección "Clase Turca" de la
         </View>
       )}
 
+      {activeTab === 'profile' && (
+        <ScrollView style={styles.profileContainer}>
+          <Text style={styles.profileTitle}>Tu perfil</Text>
+
+          <Text style={styles.profileLabel}>Nombre</Text>
+          <TextInput
+            style={styles.profileInput}
+            placeholder="Tu nombre"
+            value={user.name}
+            onChangeText={(text) =>
+              setUser((prev) => ({ ...prev, name: text }))
+            }
+          />
+
+          <Text style={styles.profileLabel}>Tu WhatsApp</Text>
+          <TextInput
+            style={styles.profileInput}
+            placeholder="Ej. 5551234567"
+            value={user.phone}
+            onChangeText={(text) =>
+              setUser((prev) => ({ ...prev, phone: text }))
+            }
+            keyboardType="phone-pad"
+          />
+
+          <View style={styles.profileBox}>
+            <Text style={styles.profileBoxText}>
+              Puntos actuales: {user.points}
+            </Text>
+            <Text style={styles.profileBoxText}>
+              Cupones 10%: {user.coupons}
+            </Text>
+          </View>
+
+          <Text style={styles.profileLabel}>Tu código de invitación</Text>
+          <View style={styles.refCodeBox}>
+            <Text style={styles.refCodeText}>
+              {refCode || 'Completa tu nombre y WhatsApp para generar tu código.'}
+            </Text>
+          </View>
+
+          {refCode ? (
+            <Pressable style={styles.refShareButton} onPress={handleShareRefCode}>
+              <Text style={styles.refShareButtonText}>
+                Compartir mi código por WhatsApp
+              </Text>
+            </Pressable>
+          ) : null}
+
+          <View style={styles.divider} />
+
+          <Text style={styles.profileLabel}>¿Tienes un código de invitación?</Text>
+          <TextInput
+            style={styles.profileInput}
+            placeholder="Escribe aquí el código que usaste"
+            value={usedRefInput}
+            onChangeText={setUsedRefInput}
+          />
+          <Pressable
+            style={[
+              styles.refUseButton,
+              user.hasUsedReferral && { opacity: 0.5 },
+            ]}
+            disabled={user.hasUsedReferral}
+            onPress={handleUseReferralBonus}
+          >
+            <Text style={styles.refUseButtonText}>
+              Obtener 50 puntos por código
+            </Text>
+          </Pressable>
+          {user.hasUsedReferral && (
+            <Text style={styles.refInfoText}>
+              Ya registraste un código de invitación. El bono se aplicó a tus puntos.
+            </Text>
+          )}
+        </ScrollView>
+      )}
+
       <View style={styles.footer}>
         <Text style={styles.footerText}>
           Pedidos especiales para fiestas y oficinas.
@@ -533,9 +766,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 10,
   },
+  badge: {
+    alignSelf: 'flex-start',
+    backgroundColor: gold,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    marginBottom: 6,
+  },
+  badgeText: {
+    color: '#2D2A24',
+    fontSize: 11,
+    fontWeight: '700',
+  },
   productName: { fontSize: 16, fontWeight: '600', marginBottom: 4, color: '#2D2A24' },
   productDesc: { fontSize: 13, color: '#6B6457', marginBottom: 6 },
   productPrice: { fontSize: 15, fontWeight: '700', color: gold, marginBottom: 10 },
+
+  couponInfoText: {
+    fontSize: 12,
+    color: '#7A6D5C',
+    marginBottom: 6,
+  },
+
   orderButton: {
     backgroundColor: primary,
     paddingVertical: 10,
@@ -543,6 +796,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   orderButtonText: { color: 'white', fontWeight: '600', fontSize: 14 },
+
+  orderButtonSecondary: {
+    marginTop: 6,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: primary,
+  },
+  orderButtonSecondaryText: {
+    color: primary,
+    fontWeight: '600',
+    fontSize: 13,
+  },
 
   aboutContainer: { flex: 1, paddingHorizontal: 16, paddingTop: 16 },
   aboutTitle: { fontSize: 18, fontWeight: '700', marginBottom: 8, color: primary },
@@ -619,6 +884,69 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   newsRetryText: { color: 'white', fontSize: 12, fontWeight: '600' },
+
+  profileContainer: { flex: 1, paddingHorizontal: 16, paddingTop: 16 },
+  profileTitle: { fontSize: 18, fontWeight: '700', marginBottom: 12, color: primary },
+  profileLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#5A4C3B',
+    marginTop: 10,
+    marginBottom: 4,
+  },
+  profileInput: {
+    borderWidth: 1,
+    borderColor: '#DDCBB0',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    fontSize: 14,
+    backgroundColor: 'white',
+  },
+  profileBox: {
+    marginTop: 14,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: '#F3E6CB',
+  },
+  profileBoxText: { fontSize: 13, color: '#5A4C3B', marginBottom: 4 },
+
+  refCodeBox: {
+    marginTop: 6,
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#DDCBB0',
+    backgroundColor: '#FFFDF7',
+  },
+  refCodeText: { fontSize: 13, color: '#2D2A24' },
+  refShareButton: {
+    marginTop: 10,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: primary,
+    alignItems: 'center',
+  },
+  refShareButtonText: { color: 'white', fontSize: 13, fontWeight: '600' },
+
+  divider: {
+    height: 1,
+    backgroundColor: '#E4D4B8',
+    marginVertical: 16,
+  },
+  refUseButton: {
+    marginTop: 8,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: gold,
+    alignItems: 'center',
+  },
+  refUseButtonText: { color: '#2D2A24', fontSize: 13, fontWeight: '600' },
+  refInfoText: {
+    marginTop: 6,
+    fontSize: 12,
+    color: '#7A6D5C',
+  },
 
   footer: {
     padding: 10,

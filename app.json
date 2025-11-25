@@ -5,12 +5,12 @@
     "version": "1.0.0",
     "orientation": "portrait",
 
-    "icon": "./assets/icon.png",
+    "icon": "./assets/app-icon.png",
 
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#014226"
+      "resizeMode": "cover",
+      "backgroundColor": "#ffffff"
     },
 
     "updates": {},
@@ -20,19 +20,20 @@
     ],
 
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.hadi.elturcochilango"
     },
 
     "android": {
+      "package": "com.hadi.elturcochilango",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#014226"
-      },
-      "package": "com.hadi.elturcochilango"
+        "backgroundColor": "#ffffff"
+      }
     },
 
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/app-icon.png"
     },
 
     "platforms": [

@@ -14,57 +14,164 @@ import {
   TextInput,
 } from 'react-native';
 
-// Yeni oluşturduğumuz bileşeni içe aktarıyoruz
+// Bileşeni içe aktarıyoruz
 import ProductCard from './components/ProductCard';
 
 const PHONE_NUMBER = '525529275019';
 const LOGO_IMAGE = require('./assets/icon.png');
 
-// --- VERİLER (DATA) ---
+// --- VERİLER ---
 const TURKISH_WORDS = [
   { tr: 'Merhaba', es: 'Hola', note: 'Saludo general' },
   { tr: 'Günaydın', es: 'Buenos días', note: 'En la mañana' },
   { tr: 'İyi akşamlar', es: 'Buenas noches', note: 'Saludo en la noche' },
-  { tr: 'Hoş geldiniz', es: 'Bienvenido(a)', note: 'Al recibir a alguien o en restaurante' },
-  { tr: 'Güle güle', es: 'Adiós', note: 'Cuando alguien se va' },
-  { tr: 'Nasılsın?', es: '¿Cómo estás?', note: 'Entre amigos, informal' },
-  { tr: 'Nasılsınız?', es: '¿Cómo está?', note: 'Formal, con respeto' },
-  { tr: 'İyiyim, teşekkürler', es: 'Estoy bien, gracias', note: 'Respuesta típica' },
-  { tr: 'Teşekkürler', es: 'Gracias', note: 'Agradecimiento general' },
-  { tr: 'Çok teşekkürler', es: 'Muchas gracias', note: 'Agradecimiento fuerte' },
-  { tr: 'Lütfen', es: 'Por favor', note: 'Para pedir algo con cortesía' },
-  { tr: 'Rica ederim', es: 'De nada / Con gusto', note: 'Respuesta a “gracias”' },
-  { tr: 'Özür dilerim', es: 'Perdón / Disculpa', note: 'Cuando cometes un error' },
-  { tr: 'Evet', es: 'Sí', note: 'Respuesta afirmativa' },
-  { tr: 'Hayır', es: 'No', note: 'Respuesta negativa' },
-  { tr: 'Anlamadım', es: 'No entendı́', note: 'Cuando no entiendes' },
-  { tr: 'Yavaş konuşur musun?', es: '¿Puedes hablar despacio?', note: 'Turco muy rápido' },
-  { tr: 'Türkçe bilmiyorum', es: 'No hablo turco', note: 'Para aclarar' },
-  { tr: 'Biraz Türkçe biliyorum', es: 'Hablo un poco de turco', note: 'Nivel básico' },
-  { tr: 'Burası neresi?', es: '¿Dónde estoy?', note: 'Cuando estás perdido' },
-  { tr: '... nerededir?', es: '¿Dónde está...?', note: 'Para preguntar por un lugar' },
-  { tr: 'Otobüs durağı nerede?', es: '¿Dónde está la parada de camión?', note: 'Transporte público' },
-  { tr: 'Metro durağı nerede?', es: '¿Dónde está la estación de metro?', note: 'Transporte público' },
-  { tr: 'Sol', es: 'Izquierda', note: 'Dirección' },
-  { tr: 'Sağ', es: 'Derecha', note: 'Dirección' },
-  { tr: 'Düz', es: 'Derecho / recto', note: 'Seguir derecho' },
-  { tr: 'Menü alabilir miyim?', es: '¿Me puede traer el menú, por favor?', note: 'En restaurante' },
-  { tr: 'Bir masa istiyorum', es: 'Quiero una mesa', note: 'Al llegar al restaurante' },
-  { tr: 'İki kişilik masa', es: 'Mesa para dos personas', note: 'Reservar lugar' },
-  { tr: 'Ne tavsiye edersiniz?', es: '¿Qué me recomienda?', note: 'Pedir recomendación' },
-  { tr: 'Hesap lütfen', es: 'La cuenta, por favor', note: 'Para pagar' },
-  { tr: 'Paket yapar mısınız?', es: '¿Me lo puede poner para llevar?', note: 'Para llevar' },
-  { tr: 'Acısız olsun lütfen', es: 'Sin picante, por favor', note: 'Si no quieres picante' },
-  { tr: 'Bir çay lütfen', es: 'Un té turco, por favor', note: 'Pedir çay' },
-  { tr: 'Bu ne kadar?', es: '¿Cuánto cuesta esto?', note: 'Precio de un producto' },
-  { tr: 'İndirim var mı?', es: '¿Hay descuento?', note: 'Preguntar por promoción' },
-  { tr: 'Bir kilo ... istiyorum', es: 'Quiero un kilo de...', note: 'Frutas, verduras, etc.' },
-  { tr: 'Poşet alabilir miyim?', es: '¿Me puede dar una bolsa?', note: 'En caja / súper' },
-  { tr: 'Kredi kartı geçiyor mu?', es: '¿Aceptan tarjeta?', note: 'Forma de pago' },
-  { tr: 'Taksi çağırabilir misiniz?', es: '¿Puede llamar un taxi, por favor?', note: 'En hotel o restaurante' },
-  { tr: 'Havalimanına gitmek istiyorum', es: 'Quiero ir al aeropuerto', note: 'Taxi / transporte' },
-  { tr: 'Ne kadar sürer?', es: '¿Cuánto tiempo tarda?', note: 'Duración del trayecto' },
-  { tr: 'Yardım eder misiniz?', es: '¿Me puede ayudar?', note: 'Pedir ayuda' },
-  { tr: 'Doktor lazım', es: 'Necesito un doctor', note: 'Emergencia médica' },
-  { tr: 'Polisi arayın lütfen', es: 'Llame a la policía, por favor', note: 'Emergencia seria' },
+  { tr: 'Hoş geldiniz', es: 'Bienvenido(a)', note: 'Al recibir a alguien' },
+  { tr: 'Güle güle', es: 'Adiós', note: 'Al despedirse' },
+  { tr: 'Nasılsın?', es: '¿Cómo estás?', note: 'Informal' },
+  { tr: 'Teşekkürler', es: 'Gracias', note: 'General' },
+  { tr: 'Lütfen', es: 'Por favor', note: 'Cortesía' },
+  { tr: 'Afiyet olsun', es: 'Buen provecho', note: 'Al comer' },
+  { tr: 'Hesap lütfen', es: 'La cuenta, por favor', note: 'Restaurante' },
 ];
+
+const NEWS_FEED_URL = 'https://www.trtworld.com/rss/es/turkey';
+const CATEGORIES = [
+  { id: 'all', name: 'Todo' },
+  { id: 'baklava', name: 'Baklava' },
+  { id: 'lokum', name: 'Lokum' },
+  { id: 'cajas', name: 'Cajas de regalo' },
+];
+
+const PRODUCTS = [
+  { id: 'baklava-pistache-1kg', name: 'Baklava Pistache 1 kg', description: 'Baklava de pistache turco original.', price: 700, category: 'baklava', bestSeller: true, image: require('./assets/baklava_pistache_main.webp') },
+  { id: 'baklava-pistache-500g', name: 'Baklava Pistache 500 g', description: 'Media charola de baklava.', price: 380, category: 'baklava', bestSeller: true, image: require('./assets/baklava_pistache_main.webp') },
+  { id: 'lokum-rosa-250', name: 'Lokum Rosa 250 g', description: 'Delicia turca sabor rosa.', price: 250, category: 'lokum', bestSeller: false, imageUrl: 'https://images.pexels.com/photos/1438186/pexels-photo-1438186.jpeg?auto=compress&cs=tinysrgb&w=800' },
+];
+
+// --- YARDIMCI FONKSİYONLAR ---
+function parseRssItems(xmlText) {
+  const items = [];
+  const parts = xmlText.split('<item>');
+  for (let i = 1; i < parts.length && items.length < 8; i++) {
+    const block = parts[i];
+    const titleMatch = block.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>|<title>(.*?)<\/title>/);
+    const descMatch = block.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>|<description>(.*?)<\/description>/);
+    const linkMatch = block.match(/<link>(.*?)<\/link>/);
+    items.push({ 
+      id: `news-${i}`, 
+      title: titleMatch ? (titleMatch[1] || titleMatch[2]) : 'Sin título', 
+      description: descMatch ? (descMatch[1] || descMatch[2]) : '', 
+      link: linkMatch ? linkMatch[1] : '' 
+    });
+  }
+  return items;
+}
+
+export default function App() {
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [activeTab, setActiveTab] = useState('menu');
+  const [news, setNews] = useState([]);
+  const [newsLoading, setNewsLoading] = useState(false);
+  const [user, setUser] = useState({ name: '', phone: '' });
+
+  const filteredProducts = useMemo(() => {
+    return selectedCategory === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === selectedCategory);
+  }, [selectedCategory]);
+
+  const loadNews = async () => {
+    try {
+      setNewsLoading(true);
+      const res = await fetch(NEWS_FEED_URL);
+      const text = await res.text();
+      setNews(parseRssItems(text));
+    } catch (e) {
+      console.log("Haber yüklenemedi");
+    } finally {
+      setNewsLoading(false);
+    }
+  };
+
+  useEffect(() => { loadNews(); }, []);
+
+  const handleOrder = (product) => {
+    const message = `Hola El Turco Chilango, me gustaría pedir:\n\nProducto: ${product.name}\nPrecio: ${product.price} MXN`.trim();
+    Linking.openURL(`https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(message)}`);
+  };
+
+  return (
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="light-content" />
+      <View style={styles.header}>
+        <View style={styles.headerTopRow}>
+          <Image source={LOGO_IMAGE} style={styles.logo} />
+          <View>
+            <Text style={styles.brand}>El Turco Chilango</Text>
+            <Text style={styles.slogan}>Sabores de Turquía en México</Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.tabBar}>
+        {[['menu', 'Menú'], ['about', 'Nosotros'], ['clase', 'Clase'], ['news', 'Noticias'], ['profile', 'Perfil']].map(([key, label]) => (
+          <Pressable key={key} style={[styles.tabButton, activeTab === key && styles.tabButtonActive]} onPress={() => setActiveTab(key)}>
+            <Text style={[styles.tabText, activeTab === key && styles.tabTextActive]}>{label}</Text>
+          </Pressable>
+        ))}
+      </View>
+
+      {activeTab === 'menu' && (
+        <View style={styles.container}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryBar}>
+            {CATEGORIES.map((cat) => (
+              <Pressable key={cat.id} style={[styles.categoryChip, cat.id === selectedCategory && styles.categoryChipActive]} onPress={() => setSelectedCategory(cat.id)}>
+                <Text style={[styles.categoryText, cat.id === selectedCategory && styles.categoryTextActive]}>{cat.name}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+          <FlatList data={filteredProducts} keyExtractor={(item) => item.id} renderItem={({item}) => (
+            <ProductCard item={item} onOrder={handleOrder} />
+          )} contentContainerStyle={styles.listContent} />
+        </View>
+      )}
+
+      {activeTab === 'clase' && (
+        <View style={styles.claseContainer}>
+          <FlatList data={TURKISH_WORDS} keyExtractor={(_, idx) => `w-${idx}`} renderItem={({item}) => (
+            <View style={styles.wordRow}>
+              <Text style={styles.wordTr}>{item.tr}</Text>
+              <Text style={styles.wordEs}>{item.es}</Text>
+            </View>
+          )} />
+        </View>
+      )}
+
+      {activeTab === 'news' && (
+        <View style={styles.newsContainer}>
+          {newsLoading ? <ActivityIndicator color="#014226" /> : (
+            <FlatList data={news} keyExtractor={(item) => item.id} renderItem={({item}) => (
+              <Pressable style={styles.newsCard} onPress={() => item.link && Linking.openURL(item.link)}>
+                <Text style={styles.newsTitle}>{item.title}</Text>
+                <Text numberOfLines={2}>{item.description.replace(/<[^>]+>/g, '')}</Text>
+              </Pressable>
+            )} />
+          )}
+        </View>
+      )}
+
+      {activeTab === 'profile' && (
+        <View style={styles.profileContainer}>
+          <Text style={styles.profileTitle}>Tu Perfil</Text>
+          <TextInput style={styles.input} placeholder="Nombre" value={user.name} onChangeText={t => setUser({...user, name: t})} />
+          <TextInput style={styles.input} placeholder="WhatsApp" value={user.phone} onChangeText={t => setUser({...user, phone: t})} keyboardType="phone-pad" />
+        </View>
+      )}
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: '#FFF6E9' },
+  header: { backgroundColor: '#014226', padding: 20 },
+  headerTopRow: { flexDirection: 'row', alignItems: 'center' },
+  logo: { width: 50, height: 50, borderRadius: 25, marginRight: 15 },
+  brand: { color:

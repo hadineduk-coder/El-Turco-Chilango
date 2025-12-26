@@ -12,14 +12,13 @@ import {
   ActivityIndicator,
   Image,
 } from 'react-native';
-// İkonlar için Expo'nun hazır kütüphanesini ekledik
 import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 
 import ProductCard from './components/ProductCard';
 
 const PHONE_NUMBER = '525529275019';
 const INSTAGRAM_URL = 'https://instagram.com/elturcochilango';
-const LOGO_IMAGE = require('./assets/icon.png');
+const LOGO_IMAGE = require('./assets/app-icon.png');
 
 // --- VERİLER ---
 const TURKISH_WORDS = [
@@ -28,8 +27,11 @@ const TURKISH_WORDS = [
   { tr: 'Lütfen', es: 'Por favor', note: 'Cortesía' },
   { tr: 'Teşekkürler', es: 'Gracias', note: 'General' },
   { tr: 'Hesap lütfen', es: 'La cuenta, por favor', note: 'Restaurante' },
+  { tr: 'Nasılsın?', es: '¿Cómo estás?', note: 'Informal' },
+  { tr: 'İyiyim', es: 'Estoy bien', note: 'Respuesta' },
 ];
 
+const NEWS_FEED_URL = 'https://www.trtworld.com/rss/es/turkey';
 const CATEGORIES = [
   { id: 'all', name: 'Todo' },
   { id: 'baklava', name: 'Baklava' },
@@ -38,23 +40,58 @@ const CATEGORIES = [
 
 const PRODUCTS = [
   { id: 'bak-1', name: 'Baklava Pistache', description: 'Baklava de pistache turco original.', price: 700, category: 'baklava', bestSeller: true, image: require('./assets/baklava_pistache_main.webp') },
-  { id: 'lok-1', name: 'Lokum Rosa', description: 'Delicia turca tradicional.', price: 250, category: 'lokum', bestSeller: false, imageUrl: 'https://images.pexels.com/photos/1438186/pexels-photo-1438186.jpeg?auto=compress&cs=tinysrgb&w=800' },
+  { id: 'bak-2', name: 'Baklava Nuez', description: 'Baklava clásica de nuez turca.', price: 650, category: 'baklava', bestSeller: false, image: require('./assets/baklava_nuez_main.webp') },
+  { id: 'lok-1', name: 'Lokum Rosa', description: 'Delicia turca tradicional sabor rosa.', price: 250, category: 'lokum', bestSeller: false, imageUrl: 'https://images.pexels.com/photos/1438186/pexels-photo-1438186.jpeg?auto=compress&cs=tinysrgb&w=800' },
 ];
+
+// --- YARDIMCI FONKSİYONLAR ---
+function parseRssItems(xmlText) {
+  const items = [];
+  const parts = xmlText.split('<item>');
+  for (let i = 1; i < parts.length && items.length < 8; i++) {
+    const block = parts[i];
+    const titleMatch = block.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>|<title>(.*?)<\/title>/);
+    const descMatch = block.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>|<description>(.*?)<\/description>/);
+    const linkMatch = block.match(/<link>(.*?)<\/link>/);
+    items.push({ 
+      id: `news-${i}`, 
+      title: titleMatch ? (titleMatch[1] || titleMatch[2]) : 'Sin título', 
+      description: descMatch ? (descMatch[1] || descMatch[2]) : '', 
+      link: linkMatch ? linkMatch[1] : '' 
+    });
+  }
+  return items;
+}
 
 export default function App() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('menu');
+  const [news, setNews] = useState([]);
+  const [newsLoading, setNewsLoading] = useState(false);
 
   const filteredProducts = useMemo(() => {
     return selectedCategory === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.category === selectedCategory);
   }, [selectedCategory]);
 
-  const handleOrder = (product) => {
-    const message = `Hola, me gustaría pedir: ${product.name}`.trim();
-    Linking.openURL(`https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(message)}`);
+  const loadNews = async () => {
+    try {
+      setNewsLoading(true);
+      const res = await fetch(NEWS_FEED_URL);
+      const text = await res.text();
+      setNews(parseRssItems(text));
+    } catch (e) {
+      console.log("Haber yüklenemedi");
+    } finally {
+      setNewsLoading(false);
+    }
   };
 
-  const openInstagram = () => Linking.openURL(INSTAGRAM_URL);
+  useEffect(() => { loadNews(); }, []);
+
+  const handleOrder = (product) => {
+    const message = `Hola El Turco Chilango, me gustaría pedir: ${product.name}`.trim();
+    Linking.openURL(`https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(message)}`);
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -69,7 +106,7 @@ export default function App() {
         </View>
       </View>
 
-      {/* ANA İÇERİK */}
+      {/* CONTENT AREA */}
       <View style={styles.content}>
         {activeTab === 'menu' && (
           <View style={{ flex: 1 }}>
@@ -80,83 +117,60 @@ export default function App() {
                 </Pressable>
               ))}
             </ScrollView>
-            <FlatList data={filteredProducts} keyExtractor={(item) => item.id} renderItem={({item}) => (
-              <ProductCard item={item} onOrder={handleOrder} />
-            )} contentContainerStyle={styles.listContent} />
+            <FlatList 
+              data={filteredProducts} 
+              keyExtractor={(item) => item.id} 
+              renderItem={({item}) => <ProductCard item={item} onOrder={handleOrder} />} 
+              contentContainerStyle={styles.listContent} 
+            />
+          </View>
+        )}
+
+        {activeTab === 'clase' && (
+          <View style={styles.container}>
+            <FlatList 
+              data={TURKISH_WORDS} 
+              keyExtractor={(_, idx) => `w-${idx}`} 
+              renderItem={({item}) => (
+                <View style={styles.wordRow}>
+                  <View>
+                    <Text style={styles.wordTr}>{item.tr}</Text>
+                    <Text style={styles.wordEs}>{item.es}</Text>
+                  </View>
+                  <Text style={styles.wordNote}>{item.note}</Text>
+                </View>
+              )} 
+            />
+          </View>
+        )}
+
+        {activeTab === 'news' && (
+          <View style={styles.container}>
+            {newsLoading ? <ActivityIndicator size="large" color="#014226" style={{ marginTop: 20 }} /> : (
+              <FlatList data={news} keyExtractor={(item) => item.id} renderItem={({item}) => (
+                <Pressable style={styles.newsCard} onPress={() => item.link && Linking.openURL(item.link)}>
+                  <Text style={styles.newsTitle}>{item.title}</Text>
+                  <Text numberOfLines={2} style={styles.newsDesc}>{item.description.replace(/<[^>]+>/g, '')}</Text>
+                </Pressable>
+              )} />
+            )}
           </View>
         )}
 
         {activeTab === 'about' && (
           <ScrollView contentContainerStyle={styles.aboutPage}>
+            <Image source={LOGO_IMAGE} style={styles.aboutHeroImage} resizeMode="contain" />
             <View style={styles.aboutCard}>
-              <Text style={styles.aboutTitle}>Nuestra Historia</Text>
-              <Text style={styles.aboutText}>Traemos la auténtica tradición de los dulces turcos a la Ciudad de México. Cada receta es un puente entre Estambul y el corazón chilango.</Text>
+              <Text style={styles.aboutTitle}>Nuestra Historia 🇲🇽🇹🇷</Text>
+              <Text style={styles.aboutText}>
+                El Turco Chilango nace de la pasión por compartir la riqueza culinaria de Turquía en el corazón de México. 
+                Nuestros postres son elaborados artesanalmente con recetas tradicionales.
+              </Text>
+              <Text style={styles.aboutText}>
+                Hacemos envíos directos para que disfrutes de la auténtica experiencia turca en casa.
+              </Text>
             </View>
 
             <View style={styles.contactSection}>
-              <Text style={styles.contactTitle}>Contacto Directo</Text>
-              
-              <Pressable style={styles.contactButton} onPress={() => Linking.openURL(`https://wa.me/${PHONE_NUMBER}`)}>
-                <MaterialCommunityIcons name="whatsapp" size={24} color="white" />
-                <Text style={styles.contactButtonText}>Escríbenos por WhatsApp</Text>
-              </Pressable>
-
-              <Pressable style={[styles.contactButton, { backgroundColor: '#E1306C' }]} onPress={openInstagram}>
-                <MaterialCommunityIcons name="instagram" size={24} color="white" />
-                <Text style={styles.contactButtonText}>Síguenos en Instagram</Text>
-              </Pressable>
-            </View>
-          </ScrollView>
-        )}
-      </View>
-
-      {/* ALT TAB BAR (İkonlu Yeni Tasarım) */}
-      <View style={styles.tabBar}>
-        {[
-          { key: 'menu', label: 'Menú', icon: 'food-croissant' },
-          { key: 'clase', label: 'Clase', icon: 'translate' },
-          { key: 'news', label: 'Noticias', icon: 'newspaper-variant-outline' },
-          { key: 'about', label: 'Nosotros', icon: 'information-outline' },
-        ].map((tab) => (
-          <Pressable key={tab.key} style={styles.tabButton} onPress={() => setActiveTab(tab.key)}>
-            <MaterialCommunityIcons 
-              name={tab.icon} 
-              size={24} 
-              color={activeTab === tab.key ? '#014226' : '#9E9481'} 
-            />
-            <Text style={[styles.tabText, activeTab === tab.key && styles.tabTextActive]}>
-              {tab.label}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#FFFDF9' },
-  header: { backgroundColor: '#014226', padding: 20, flexDirection: 'row', alignItems: 'center', paddingTop: 40 },
-  logo: { width: 45, height: 45, borderRadius: 22, marginRight: 12, borderWidth: 1, borderColor: '#F3E6CB' },
-  brand: { color: 'white', fontSize: 18, fontWeight: 'bold', letterSpacing: 1 },
-  slogan: { color: '#D4CBB3', fontSize: 11 },
-  content: { flex: 1 },
-  tabBar: { flexDirection: 'row', backgroundColor: 'white', paddingVertical: 10, borderTopWidth: 1, borderTopColor: '#EEE' },
-  tabButton: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  tabText: { fontSize: 10, color: '#9E9481', marginTop: 4 },
-  tabTextActive: { color: '#014226', fontWeight: 'bold' },
-  categoryBar: { padding: 15, maxHeight: 70 },
-  categoryChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, marginRight: 8, borderWidth: 1, borderColor: '#014226' },
-  categoryChipActive: { backgroundColor: '#014226' },
-  categoryText: { color: '#014226', fontWeight: '600' },
-  categoryTextActive: { color: 'white' },
-  listContent: { padding: 15 },
-  aboutPage: { padding: 20 },
-  aboutCard: { backgroundColor: 'white', padding: 20, borderRadius: 15, elevation: 2, marginBottom: 20 },
-  aboutTitle: { fontSize: 20, fontWeight: 'bold', color: '#014226', marginBottom: 10 },
-  aboutText: { fontSize: 14, color: '#555', lineHeight: 22 },
-  contactSection: { alignItems: 'center' },
-  contactTitle: { fontSize: 16, fontWeight: 'bold', color: '#666', marginBottom: 15 },
-  contactButton: { flexDirection: 'row', backgroundColor: '#25D366', width: '100%', padding: 15, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
-  contactButtonText: { color: 'white', fontWeight: 'bold', marginLeft: 10, fontSize: 16 },
-});
+              <Text style={styles.contactHeader}>¡Haz tu pedido!</Text>
+              <Pressable style={styles.contactButton

@@ -16,22 +16,27 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import ProductCard from './components/ProductCard';
 
+// --- AYARLAR ---
 const PHONE_NUMBER = '525529275019';
 const INSTAGRAM_URL = 'https://instagram.com/elturcochilango';
 const LOGO_IMAGE = require('./assets/app-icon.png');
+const NEWS_FEED_URL = 'https://www.trtworld.com/rss/es/turkey';
 
-// --- VERİLER ---
+// --- VERİLER (GÜNCELLENMİŞ KELİME LİSTESİ) ---
 const TURKISH_WORDS = [
   { tr: 'Merhaba', es: 'Hola', note: 'Saludo general' },
-  { tr: 'Afiyet olsun', es: 'Buen provecho', note: 'Al comer' },
+  { tr: 'Nasılsın?', es: '¿Cómo estás?', note: 'Para iniciar conversación' },
+  { tr: 'İyiyim, teşekkürler', es: 'Estoy bien, gracias', note: 'Respuesta común' },
   { tr: 'Lütfen', es: 'Por favor', note: 'Cortesía' },
-  { tr: 'Teşekkürler', es: 'Gracias', note: 'General' },
-  { tr: 'Hesap lütfen', es: 'La cuenta, por favor', note: 'Restaurante' },
-  { tr: 'Nasılsın?', es: '¿Cómo estás?', note: 'Informal' },
-  { tr: 'İyiyim', es: 'Estoy bien', note: 'Respuesta' },
+  { tr: 'Teşekkür ederim', es: 'Gracias', note: 'Cortesía formal' },
+  { tr: 'Çok lezzetli!', es: '¡Muy delicioso!', note: 'Para tus postres' },
+  { tr: 'Afiyet olsun', es: 'Buen provecho', note: 'Deseo antes de comer' },
+  { tr: 'Hesap lütfen', es: 'La cuenta, por favor', note: 'Uso en restaurante' },
+  { tr: 'Görüşürüz', es: 'Nos vemos / Adiós', note: 'Despedida' },
+  { tr: 'Ne kadar?', es: '¿Cuánto cuesta?', note: 'Para consultas de precio' },
+  { tr: 'Baklava istiyorum', es: 'Quiero baklava', note: '¡El más importante!' },
 ];
 
-const NEWS_FEED_URL = 'https://www.trtworld.com/rss/es/turkey';
 const CATEGORIES = [
   { id: 'all', name: 'Todo' },
   { id: 'baklava', name: 'Baklava' },
@@ -44,7 +49,7 @@ const PRODUCTS = [
   { id: 'lok-1', name: 'Lokum Rosa', description: 'Delicia turca tradicional sabor rosa.', price: 250, category: 'lokum', bestSeller: false, imageUrl: 'https://images.pexels.com/photos/1438186/pexels-photo-1438186.jpeg?auto=compress&cs=tinysrgb&w=800' },
 ];
 
-// --- YARDIMCI FONKSİYONLAR ---
+// --- YARDIMCI FONKSİYONLAR (HABERLER İÇİN) ---
 function parseRssItems(xmlText) {
   const items = [];
   const parts = xmlText.split('<item>');
@@ -133,13 +138,14 @@ export default function App() {
               keyExtractor={(_, idx) => `w-${idx}`} 
               renderItem={({item}) => (
                 <View style={styles.wordRow}>
-                  <View>
+                  <View style={{ flex: 1 }}>
                     <Text style={styles.wordTr}>{item.tr}</Text>
                     <Text style={styles.wordEs}>{item.es}</Text>
                   </View>
                   <Text style={styles.wordNote}>{item.note}</Text>
                 </View>
               )} 
+              contentContainerStyle={{ paddingBottom: 20 }}
             />
           </View>
         )}
@@ -161,16 +167,4 @@ export default function App() {
           <ScrollView contentContainerStyle={styles.aboutPage}>
             <Image source={LOGO_IMAGE} style={styles.aboutHeroImage} resizeMode="contain" />
             <View style={styles.aboutCard}>
-              <Text style={styles.aboutTitle}>Nuestra Historia 🇲🇽🇹🇷</Text>
-              <Text style={styles.aboutText}>
-                El Turco Chilango nace de la pasión por compartir la riqueza culinaria de Turquía en el corazón de México. 
-                Nuestros postres son elaborados artesanalmente con recetas tradicionales.
-              </Text>
-              <Text style={styles.aboutText}>
-                Hacemos envíos directos para que disfrutes de la auténtica experiencia turca en casa.
-              </Text>
-            </View>
-
-            <View style={styles.contactSection}>
-              <Text style={styles.contactHeader}>¡Haz tu pedido!</Text>
-              <Pressable style={styles.contactButton
+              <Text style={styles.aboutTitle}>Nuestra Historia 🇲🇽
